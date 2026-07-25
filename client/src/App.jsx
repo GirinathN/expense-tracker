@@ -1,30 +1,34 @@
-import { useEffect, useState } from "react";
-import api from "./services/api";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+import MainLayout from "./layouts/MainLayout";
+
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Dashboard from "./pages/Dashboard";
+import NotFound from "./pages/NotFound";
 
 function App() {
-    const [message, setMessage] = useState("");
-
-    useEffect(() => {
-        const fetchMessage = async () => {
-            try {
-                const response = await api.get("/api/hello");
-                setMessage(response.data.message);
-            } catch (error) {
-                console.error(error);
-            }
-        };
-
-        fetchMessage();
-    }, []);
-
     return (
-        <div style={{ padding: "40px" }}>
-            <h1>Expense Tracker</h1>
+        <BrowserRouter>
+            <Routes>
 
-            <h2>Backend Message:</h2>
+                <Route element={<MainLayout />}>
 
-            <p>{message}</p>
-        </div>
+                    <Route path="/" element={<Home />} />
+
+                    <Route path="/login" element={<Login />} />
+
+                    <Route path="/register" element={<Register />} />
+
+                    <Route path="/dashboard" element={<Dashboard />} />
+
+                </Route>
+
+                <Route path="*" element={<NotFound />} />
+
+            </Routes>
+        </BrowserRouter>
     );
 }
 
