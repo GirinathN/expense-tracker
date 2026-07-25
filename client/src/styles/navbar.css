@@ -1,0 +1,23 @@
+header {
+  background: white;
+  box-shadow: var(--shadow);
+}
+
+nav {
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+nav div {
+  display: flex;
+  gap: 24px;
+}
+
+nav a:hover {
+  color: var(--primary-color);
+}

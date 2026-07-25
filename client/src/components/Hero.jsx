@@ -1,6 +1,8 @@
+import "../styles/hero.css";
+
 function Hero() {
     return (
-        <section>
+        <section className = "hero">
             <h1>Manage Your Expenses with Ease</h1>
 
             <p>
