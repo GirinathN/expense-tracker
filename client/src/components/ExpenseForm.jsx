@@ -1,5 +1,8 @@
 import { useState } from "react";
 
+import InputField from "./InputField";
+import Button from "./Button";
+
 function ExpenseForm({ onExpenseAdded }) {
 
     const [title, setTitle] = useState("");
@@ -19,21 +22,13 @@ function ExpenseForm({ onExpenseAdded }) {
     const categories = [
 
         "Food",
-
         "Transport",
-
         "Shopping",
-
         "Bills",
-
         "Entertainment",
-
         "Healthcare",
-
         "Education",
-
         "Salary",
-
         "Other"
 
     ];
@@ -82,7 +77,7 @@ function ExpenseForm({ onExpenseAdded }) {
 
         }
 
-        catch (err) {
+        catch (error) {
 
             setError("Unable to add expense.");
 
@@ -104,11 +99,13 @@ function ExpenseForm({ onExpenseAdded }) {
 
             {error && <p>{error}</p>}
 
-            <input
+            <InputField
+
+                label="Title"
 
                 type="text"
 
-                placeholder="Title"
+                placeholder="Expense Title"
 
                 value={title}
 
@@ -116,13 +113,13 @@ function ExpenseForm({ onExpenseAdded }) {
 
             />
 
-            <br /><br />
+            <InputField
 
-            <input
+                label="Amount"
 
                 type="number"
 
-                placeholder="Amount"
+                placeholder="Expense Amount"
 
                 value={amount}
 
@@ -130,57 +127,47 @@ function ExpenseForm({ onExpenseAdded }) {
 
             />
 
-            <br /><br />
+            <div>
 
-            <select
+                <label>Category</label>
 
-                value={category}
+                <br />
 
-                onChange={(e) => setCategory(e.target.value)}
+                <select
 
-            >
+                    value={category}
 
-                {
+                    onChange={(e) => setCategory(e.target.value)}
 
-                    categories.map((item) => (
+                >
 
-                        <option
+                    {
 
-                            key={item}
+                        categories.map((item) => (
 
-                            value={item}
+                            <option
 
-                        >
+                                key={item}
 
-                            {item}
+                                value={item}
 
-                        </option>
+                            >
 
-                    ))
+                                {item}
 
-                }
+                            </option>
 
-            </select>
+                        ))
 
-            <br /><br />
+                    }
 
-            <textarea
+                </select>
 
-                placeholder="Description"
+            </div>
 
-                value={description}
+            <InputField
 
-                onChange={(e) =>
-
-                    setDescription(e.target.value)
-
-                }
-
-            />
-
-            <br /><br />
-
-            <input
+                label="Date"
 
                 type="date"
 
@@ -190,29 +177,41 @@ function ExpenseForm({ onExpenseAdded }) {
 
             />
 
-            <br /><br />
+            <div>
 
-            <button
+                <label>Description</label>
+
+                <br />
+
+                <textarea
+
+                    rows="4"
+
+                    placeholder="Expense Description"
+
+                    value={description}
+
+                    onChange={(e) =>
+
+                        setDescription(e.target.value)
+
+                    }
+
+                />
+
+            </div>
+
+            <br />
+
+            <Button
+
+                text="Add Expense"
+
+                loading={loading}
 
                 type="submit"
 
-                disabled={loading}
-
-            >
-
-                {
-
-                    loading ?
-
-                    "Saving..."
-
-                    :
-
-                    "Add Expense"
-
-                }
-
-            </button>
+            />
 
         </form>
 
