@@ -1,32 +1,31 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import InputField from "../components/InputField";
-
 import Button from "../components/Button";
 
-import {
+import { validateEmail } from "../utils/validation";
 
-    validateEmail
-
-} from "../utils/validation";
+import API from "../api/axios";
 
 function Login() {
 
-    const [email,setEmail]=useState("");
+    const navigate = useNavigate();
 
-    const [password,setPassword]=useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
 
-    const [loading,setLoading]=useState(false);
+    const [loading, setLoading] = useState(false);
 
-    const [error,setError]=useState("");
+    const [error, setError] = useState("");
 
-    const handleSubmit=(e)=>{
+    const handleSubmit = async (e) => {
 
         e.preventDefault();
 
         setError("");
 
-        if(!validateEmail(email)){
+        if (!validateEmail(email)) {
 
             setError("Invalid email.");
 
@@ -34,7 +33,7 @@ function Login() {
 
         }
 
-        if(!password){
+        if (!password) {
 
             setError("Password required.");
 
@@ -42,11 +41,11 @@ function Login() {
 
         }
 
-        setLoading(true);
+        try {
 
-        setTimeout(()=>{
+            setLoading(true);
 
-            console.log({
+            const res = await API.post("/auth/login", {
 
                 email,
 
@@ -54,13 +53,38 @@ function Login() {
 
             });
 
+            localStorage.setItem("token", res.data.token);
+
+            localStorage.setItem(
+                "user",
+                JSON.stringify(res.data.user)
+            );
+
+            navigate("/dashboard");
+
+        }
+
+        catch (err) {
+
+            setError(
+
+                err.response?.data?.message ||
+
+                "Login failed."
+
+            );
+
+        }
+
+        finally {
+
             setLoading(false);
 
-        },1000);
+        }
 
-    }
+    };
 
-    return(
+    return (
 
         <form onSubmit={handleSubmit}>
 
@@ -78,7 +102,7 @@ function Login() {
 
                 value={email}
 
-                onChange={(e)=>setEmail(e.target.value)}
+                onChange={(e) => setEmail(e.target.value)}
 
             />
 
@@ -92,7 +116,7 @@ function Login() {
 
                 value={password}
 
-                onChange={(e)=>setPassword(e.target.value)}
+                onChange={(e) => setPassword(e.target.value)}
 
             />
 
@@ -108,7 +132,7 @@ function Login() {
 
         </form>
 
-    )
+    );
 
 }
 

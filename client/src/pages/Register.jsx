@@ -1,6 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import InputField from "../components/InputField";
 import Button from "../components/Button";
+
+import API from "../api/axios";
 
 import {
     validateEmail,
@@ -8,6 +12,8 @@ import {
 } from "../utils/validation";
 
 function Register() {
+
+    const navigate = useNavigate();
 
     const [name, setName] = useState("");
 
@@ -21,7 +27,7 @@ function Register() {
 
     const [loading, setLoading] = useState(false);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
 
         e.preventDefault();
 
@@ -55,11 +61,11 @@ function Register() {
             return;
         }
 
-        setLoading(true);
+        try {
 
-        setTimeout(() => {
+            setLoading(true);
 
-            console.log({
+            await API.post("/auth/register", {
 
                 name,
 
@@ -69,9 +75,29 @@ function Register() {
 
             });
 
+            alert("Registration Successful!");
+
+            navigate("/login");
+
+        }
+
+        catch (err) {
+
+            setError(
+
+                err.response?.data?.message ||
+
+                "Registration failed."
+
+            );
+
+        }
+
+        finally {
+
             setLoading(false);
 
-        }, 1000);
+        }
 
     };
 
@@ -88,7 +114,7 @@ function Register() {
                 type="text"
                 placeholder="Enter your name"
                 value={name}
-                onChange={(e)=>setName(e.target.value)}
+                onChange={(e) => setName(e.target.value)}
             />
 
             <InputField
@@ -96,7 +122,7 @@ function Register() {
                 type="email"
                 placeholder="Enter your email"
                 value={email}
-                onChange={(e)=>setEmail(e.target.value)}
+                onChange={(e) => setEmail(e.target.value)}
             />
 
             <InputField
@@ -104,7 +130,7 @@ function Register() {
                 type="password"
                 placeholder="Create password"
                 value={password}
-                onChange={(e)=>setPassword(e.target.value)}
+                onChange={(e) => setPassword(e.target.value)}
             />
 
             <InputField
@@ -112,7 +138,7 @@ function Register() {
                 type="password"
                 placeholder="Confirm password"
                 value={confirmPassword}
-                onChange={(e)=>setConfirmPassword(e.target.value)}
+                onChange={(e) => setConfirmPassword(e.target.value)}
             />
 
             <Button
