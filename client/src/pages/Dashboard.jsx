@@ -3,33 +3,38 @@ import { useNavigate } from "react-router-dom";
 
 import API from "../api/axios";
 
+import ExpenseCard from "../components/ExpenseCard";
+
 function Dashboard() {
 
     const navigate = useNavigate();
 
     const [user, setUser] = useState(null);
 
-    const [loading, setLoading] = useState(true);
+    const [expenses, setExpenses] = useState([]);
 
-    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
 
-        const fetchProfile = async () => {
+        const loadDashboard = async () => {
 
             try {
 
-                const res = await API.get("/users/profile");
+                const profile = await API.get("/users/profile");
 
-                setUser(res.data.user);
+                setUser(profile.data.user);
+
+                const expenseRes = await API.get("/expenses");
+
+                setExpenses(expenseRes.data.expenses);
 
             }
 
-            catch (err) {
-
-                setError("Session expired. Please login again.");
+            catch (error) {
 
                 localStorage.removeItem("token");
+
                 localStorage.removeItem("user");
 
                 navigate("/login");
@@ -44,7 +49,7 @@ function Dashboard() {
 
         };
 
-        fetchProfile();
+        loadDashboard();
 
     }, [navigate]);
 
@@ -70,25 +75,57 @@ function Dashboard() {
 
             <h1>Dashboard</h1>
 
-            {error && <p>{error}</p>}
+            <h2>
 
-            {user && (
+                Welcome,
 
-                <>
+                {user?.name}
 
-                    <h3>Welcome, {user.name} </h3>
+            </h2>
 
-                    <p>Email: {user.email}</p>
+            <button
 
-                </>
+                onClick={handleLogout}
 
-            )}
-
-            <button onClick={handleLogout}>
+            >
 
                 Logout
 
             </button>
+
+            <hr />
+
+            <h2>Your Expenses</h2>
+
+            {
+
+                expenses.length === 0 ?
+
+                (
+
+                    <p>No expenses found.</p>
+
+                )
+
+                :
+
+                (
+
+                    expenses.map((expense) => (
+
+                        <ExpenseCard
+
+                            key={expense._id}
+
+                            expense={expense}
+
+                        />
+
+                    ))
+
+                )
+
+            }
 
         </div>
 

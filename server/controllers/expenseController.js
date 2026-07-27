@@ -1,5 +1,6 @@
 const Expense = require("../models/Expense");
 
+// Create Expense
 const createExpense = async (req, res) => {
 
     try {
@@ -72,8 +73,51 @@ const createExpense = async (req, res) => {
 
 };
 
+// Get All Expenses
+const getExpenses = async (req, res) => {
+
+    try {
+
+        const expenses = await Expense.find({
+
+            user: req.user._id
+
+        }).sort({
+
+            date: -1
+
+        });
+
+        res.status(200).json({
+
+            success: true,
+
+            count: expenses.length,
+
+            expenses
+
+        });
+
+    }
+
+    catch (error) {
+
+        res.status(500).json({
+
+            success: false,
+
+            message: error.message
+
+        });
+
+    }
+
+};
+
 module.exports = {
 
-    createExpense
+    createExpense,
+
+    getExpenses
 
 };
