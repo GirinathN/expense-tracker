@@ -1,9 +1,22 @@
-function Button({ text, type = "button" }) {
+function Button({
+    text,
+    loading,
+    type = "button"
+}) {
+
     return (
-        <button type={type}>
-            {text}
+
+        <button
+            type={type}
+            disabled={loading}
+        >
+
+            {loading ? "Please Wait..." : text}
+
         </button>
+
     );
+
 }
 
 export default Button;

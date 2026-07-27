@@ -1,7 +1,11 @@
 import { useState } from "react";
-
 import InputField from "../components/InputField";
 import Button from "../components/Button";
+
+import {
+    validateEmail,
+    validatePassword
+} from "../utils/validation";
 
 function Register() {
 
@@ -11,10 +15,73 @@ function Register() {
 
     const [password, setPassword] = useState("");
 
+    const [confirmPassword, setConfirmPassword] = useState("");
+
+    const [error, setError] = useState("");
+
+    const [loading, setLoading] = useState(false);
+
+    const handleSubmit = (e) => {
+
+        e.preventDefault();
+
+        setError("");
+
+        if (!name || !email || !password || !confirmPassword) {
+
+            setError("All fields are required.");
+
+            return;
+        }
+
+        if (!validateEmail(email)) {
+
+            setError("Enter a valid email.");
+
+            return;
+        }
+
+        if (!validatePassword(password)) {
+
+            setError("Password should be at least 6 characters.");
+
+            return;
+        }
+
+        if (password !== confirmPassword) {
+
+            setError("Passwords do not match.");
+
+            return;
+        }
+
+        setLoading(true);
+
+        setTimeout(() => {
+
+            console.log({
+
+                name,
+
+                email,
+
+                password
+
+            });
+
+            setLoading(false);
+
+        }, 1000);
+
+    };
+
     return (
-        <div>
+
+        <form onSubmit={handleSubmit}>
 
             <h1>Create Account</h1>
+
+            {error && <p>{error}</p>}
 
             <InputField
                 label="Full Name"
@@ -40,10 +107,24 @@ function Register() {
                 onChange={(e)=>setPassword(e.target.value)}
             />
 
-            <Button text="Register" />
+            <InputField
+                label="Confirm Password"
+                type="password"
+                placeholder="Confirm password"
+                value={confirmPassword}
+                onChange={(e)=>setConfirmPassword(e.target.value)}
+            />
 
-        </div>
+            <Button
+                text="Register"
+                loading={loading}
+                type="submit"
+            />
+
+        </form>
+
     );
+
 }
 
 export default Register;
