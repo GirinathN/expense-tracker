@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
 
 import ExpenseCard from "../components/ExpenseCard";
+import ExpenseForm from "../components/ExpenseForm";
 
 function Dashboard() {
 
@@ -17,41 +18,65 @@ function Dashboard() {
 
     useEffect(() => {
 
-        const loadDashboard = async () => {
-
-            try {
-
-                const profile = await API.get("/users/profile");
-
-                setUser(profile.data.user);
-
-                const expenseRes = await API.get("/expenses");
-
-                setExpenses(expenseRes.data.expenses);
-
-            }
-
-            catch (error) {
-
-                localStorage.removeItem("token");
-
-                localStorage.removeItem("user");
-
-                navigate("/login");
-
-            }
-
-            finally {
-
-                setLoading(false);
-
-            }
-
-        };
-
         loadDashboard();
 
-    }, [navigate]);
+    }, []);
+
+    const loadDashboard = async () => {
+
+        try {
+
+            const profile = await API.get("/users/profile");
+
+            setUser(profile.data.user);
+
+            const expenseRes = await API.get("/expenses");
+
+            setExpenses(expenseRes.data.expenses);
+
+        }
+
+        catch (error) {
+
+            localStorage.removeItem("token");
+
+            localStorage.removeItem("user");
+
+            navigate("/login");
+
+        }
+
+        finally {
+
+            setLoading(false);
+
+        }
+
+    };
+
+    const addExpense = async (expenseData) => {
+
+        const res = await API.post(
+
+            "/expenses",
+
+            expenseData
+
+        );
+
+        setExpenses(
+
+            [
+
+                res.data.expense,
+
+                ...expenses
+
+            ]
+
+        );
+
+    };
 
     const handleLogout = () => {
 
@@ -75,13 +100,13 @@ function Dashboard() {
 
             <h1>Dashboard</h1>
 
-            <h2>
+            <h3>
 
                 Welcome,
 
                 {user?.name}
 
-            </h2>
+            </h3>
 
             <button
 
@@ -95,6 +120,14 @@ function Dashboard() {
 
             <hr />
 
+            <ExpenseForm
+
+                onExpenseAdded={addExpense}
+
+            />
+
+            <hr />
+
             <h2>Your Expenses</h2>
 
             {
@@ -103,7 +136,7 @@ function Dashboard() {
 
                 (
 
-                    <p>No expenses found.</p>
+                    <p>No expenses yet.</p>
 
                 )
 
