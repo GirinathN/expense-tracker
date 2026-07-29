@@ -8,6 +8,8 @@ import ExpenseCard from "../components/ExpenseCard";
 import ExpenseForm from "../components/ExpenseForm";
 import ExpensePieChart from "../charts/ExpensePieChart";
 import MonthlyBarChart from "../charts/MonthlyBarChart";
+import LoadingSpinner from "../components/LoadingSpinner";
+import { toast } from "react-toastify";
 
 function Dashboard() {
 
@@ -92,7 +94,7 @@ function Dashboard() {
                     )
 
                 );
-
+                toast.success("Expense updated successfully!");
                 setEditingExpense(null);
 
             }
@@ -114,7 +116,7 @@ function Dashboard() {
                     ...expenses
 
                 ]);
-
+                toast.success("Expense added successfully!");
             }
 
         }
@@ -122,7 +124,7 @@ function Dashboard() {
         catch (error) {
 
             console.log(error);
-
+            toast.error("Failed to save expense.");
         }
 
     };
@@ -150,13 +152,13 @@ function Dashboard() {
                 )
 
             );
-
+            toast.success("Expense deleted successfully!");
         }
 
         catch (error) {
 
             console.log(error);
-
+            toast.error("Failed to delete expense.");
         }
 
     };
@@ -409,7 +411,7 @@ function Dashboard() {
 
     if (loading) {
 
-        return <h2>Loading...</h2>;
+        return <LoadingSpinner />;
 
     }
 
