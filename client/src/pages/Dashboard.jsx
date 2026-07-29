@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import API from "../api/axios";
 
+import DashboardCard from "../components/DashboardCard";
 import ExpenseCard from "../components/ExpenseCard";
 import ExpenseForm from "../components/ExpenseForm";
 
@@ -34,9 +35,9 @@ function Dashboard() {
 
         try {
 
-            const profile = await API.get("/users/profile");
+            const profileRes = await API.get("/users/profile");
 
-            setUser(profile.data.user);
+            setUser(profileRes.data.user);
 
             const expenseRes = await API.get("/expenses");
 
@@ -44,7 +45,7 @@ function Dashboard() {
 
         }
 
-        catch {
+        catch (error) {
 
             localStorage.removeItem("token");
 
@@ -62,35 +63,210 @@ function Dashboard() {
 
     };
 
-    const addExpense = async (expenseData) => {
+    const saveExpense = async (expenseData) => {
 
-        const res = await API.post("/expenses", expenseData);
+        try {
 
-        setExpenses([res.data.expense, ...expenses]);
+            if (editingExpense) {
+
+                const res = await API.put(
+
+                    `/expenses/${editingExpense._id}`,
+
+                    expenseData
+
+                );
+
+                setExpenses(
+
+                    expenses.map((expense) =>
+
+                        expense._id === editingExpense._id
+
+                            ? res.data.expense
+
+                            : expense
+
+                    )
+
+                );
+
+                setEditingExpense(null);
+
+            }
+
+            else {
+
+                const res = await API.post(
+
+                    "/expenses",
+
+                    expenseData
+
+                );
+
+                setExpenses([
+
+                    res.data.expense,
+
+                    ...expenses
+
+                ]);
+
+            }
+
+        }
+
+        catch (error) {
+
+            console.log(error);
+
+        }
 
     };
 
     const deleteExpense = async (id) => {
 
-        const confirmDelete = window.confirm("Delete this expense?");
+        const confirmDelete = window.confirm(
 
-        if (!confirmDelete) return;
-
-        await API.delete(`/expenses/${id}`);
-
-        setExpenses(
-
-            expenses.filter((expense) => expense._id !== id)
+            "Delete this expense?"
 
         );
 
+        if (!confirmDelete) return;
+
+        try {
+
+            await API.delete(`/expenses/${id}`);
+
+            setExpenses(
+
+                expenses.filter(
+
+                    (expense) => expense._id !== id
+
+                )
+
+            );
+
+        }
+
+        catch (error) {
+
+            console.log(error);
+
+        }
+
     };
+
+    const handleLogout = () => {
+
+        localStorage.removeItem("token");
+
+        localStorage.removeItem("user");
+
+        navigate("/login");
+
+    };
+
+    const totalIncome = useMemo(() => {
+
+        return expenses
+
+            .filter(
+
+                (expense) =>
+
+                    expense.category === "Salary"
+
+            )
+
+            .reduce(
+
+                (total, expense) =>
+
+                    total + expense.amount,
+
+                0
+
+            );
+
+    }, [expenses]);
+
+    const totalExpense = useMemo(() => {
+
+        return expenses
+
+            .filter(
+
+                (expense) =>
+
+                    expense.category !== "Salary"
+
+            )
+
+            .reduce(
+
+                (total, expense) =>
+
+                    total + expense.amount,
+
+                0
+
+            );
+
+    }, [expenses]);
+
+    const balance = useMemo(() => {
+
+        return totalIncome - totalExpense;
+
+    }, [totalIncome, totalExpense]);
+
+    const monthlyExpense = useMemo(() => {
+
+        const today = new Date();
+
+        return expenses
+
+            .filter((expense) => {
+
+                const expenseDate = new Date(expense.date);
+
+                return (
+
+                    expense.category !== "Salary"
+
+                    &&
+
+                    expenseDate.getMonth() === today.getMonth()
+
+                    &&
+
+                    expenseDate.getFullYear() ===
+
+                    today.getFullYear()
+
+                );
+
+            })
+
+            .reduce(
+
+                (total, expense) =>
+
+                    total + expense.amount,
+
+                0
+
+            );
+
+    }, [expenses]);
 
     const filteredExpenses = useMemo(() => {
 
         let data = [...expenses];
 
-        // Search
         data = data.filter((expense) =>
 
             expense.title
@@ -101,18 +277,18 @@ function Dashboard() {
 
         );
 
-        // Category Filter
         if (categoryFilter !== "All") {
 
             data = data.filter(
 
-                (expense) => expense.category === categoryFilter
+                (expense) =>
+
+                    expense.category === categoryFilter
 
             );
 
         }
 
-        // Sorting
         switch (sortBy) {
 
             case "latest":
@@ -121,7 +297,9 @@ function Dashboard() {
 
                     (a, b) =>
 
-                        new Date(b.date) -
+                        new Date(b.date)
+
+                        -
 
                         new Date(a.date)
 
@@ -135,7 +313,9 @@ function Dashboard() {
 
                     (a, b) =>
 
-                        new Date(a.date) -
+                        new Date(a.date)
+
+                        -
 
                         new Date(b.date)
 
@@ -147,7 +327,9 @@ function Dashboard() {
 
                 data.sort(
 
-                    (a, b) => b.amount - a.amount
+                    (a, b) =>
+
+                        b.amount - a.amount
 
                 );
 
@@ -157,7 +339,9 @@ function Dashboard() {
 
                 data.sort(
 
-                    (a, b) => a.amount - b.amount
+                    (a, b) =>
+
+                        a.amount - b.amount
 
                 );
 
@@ -171,17 +355,55 @@ function Dashboard() {
 
         return data;
 
-    }, [expenses, search, categoryFilter, sortBy]);
+    }, [
 
-    const handleLogout = () => {
+        expenses,
 
-        localStorage.removeItem("token");
+        search,
 
-        localStorage.removeItem("user");
+        categoryFilter,
 
-        navigate("/login");
+        sortBy
 
-    };
+    ]);
+
+    const recentTransactions = useMemo(() => {
+
+        return filteredExpenses.slice(0, 5);
+
+    }, [filteredExpenses]);
+
+    const categorySummary = useMemo(() => {
+
+        return expenses.reduce(
+
+            (summary, expense) => {
+
+                if (
+
+                    expense.category === "Salary"
+
+                ) {
+
+                    return summary;
+
+                }
+
+                summary[expense.category] =
+
+                    (summary[expense.category] || 0)
+
+                    + expense.amount;
+
+                return summary;
+
+            },
+
+            {}
+
+        );
+
+    }, [expenses]);
 
     if (loading) {
 
@@ -189,23 +411,76 @@ function Dashboard() {
 
     }
 
-    return (
+        return (
 
-        <div>
+        <div style={{ padding: "20px" }}>
 
             <h1>Dashboard</h1>
 
             <h3>
 
-                Welcome, {user?.name}
+                Welcome, {user?.name} 
 
             </h3>
 
             <button onClick={handleLogout}>
 
                 Logout
-
             </button>
+
+            <hr />
+
+            {/* Dashboard Summary Cards */}
+
+            <div
+
+                style={{
+
+                    display: "grid",
+
+                    gridTemplateColumns: "repeat(4,1fr)",
+
+                    gap: "20px",
+
+                    margin: "25px 0"
+
+                }}
+
+            >
+
+                <DashboardCard
+
+                    title="Total Income"
+
+                    value={`₹${totalIncome}`}
+
+                />
+
+                <DashboardCard
+
+                    title="Total Expense"
+
+                    value={`₹${totalExpense}`}
+
+                />
+
+                <DashboardCard
+
+                    title="Balance"
+
+                    value={`₹${balance}`}
+
+                />
+
+                <DashboardCard
+
+                    title="This Month"
+
+                    value={`₹${monthlyExpense}`}
+
+                />
+
+            </div>
 
             <hr />
 
@@ -213,111 +488,126 @@ function Dashboard() {
 
                 expense={editingExpense}
 
-                onExpenseAdded={addExpense}
+                onSubmit={saveExpense}
+
+                onCancel={() => setEditingExpense(null)}
 
             />
 
             <hr />
 
-            <h2>Your Expenses</h2>
+            <h2>Recent Transactions</h2>
 
-            <input
+            <div
 
-                type="text"
+                style={{
 
-                placeholder="Search Expenses"
+                    display: "flex",
 
-                value={search}
+                    gap: "15px",
 
-                onChange={(e) =>
+                    flexWrap: "wrap",
 
-                    setSearch(e.target.value)
+                    marginBottom: "20px"
 
-                }
-
-            />
-
-            <br /><br />
-
-            <select
-
-                value={categoryFilter}
-
-                onChange={(e) =>
-
-                    setCategoryFilter(e.target.value)
-
-                }
+                }}
 
             >
 
-                <option>All</option>
+                <input
 
-                <option>Food</option>
+                    type="text"
 
-                <option>Transport</option>
+                    placeholder="Search expenses..."
 
-                <option>Shopping</option>
+                    value={search}
 
-                <option>Bills</option>
+                    onChange={(e) =>
 
-                <option>Entertainment</option>
+                        setSearch(e.target.value)
 
-                <option>Healthcare</option>
+                    }
 
-                <option>Education</option>
+                />
 
-                <option>Salary</option>
+                <select
 
-                <option>Other</option>
+                    value={categoryFilter}
 
-            </select>
+                    onChange={(e) =>
 
-            <br /><br />
+                        setCategoryFilter(e.target.value)
 
-            <select
+                    }
 
-                value={sortBy}
+                >
 
-                onChange={(e) =>
+                    <option value="All">All</option>
 
-                    setSortBy(e.target.value)
+                    <option value="Food">Food</option>
 
-                }
+                    <option value="Transport">Transport</option>
 
-            >
+                    <option value="Shopping">Shopping</option>
 
-                <option value="latest">
+                    <option value="Bills">Bills</option>
 
-                    Latest
+                    <option value="Entertainment">Entertainment</option>
 
-                </option>
+                    <option value="Healthcare">Healthcare</option>
 
-                <option value="oldest">
+                    <option value="Education">Education</option>
 
-                    Oldest
+                    <option value="Salary">Salary</option>
 
-                </option>
+                    <option value="Other">Other</option>
 
-                <option value="highest">
+                </select>
 
-                    Highest Amount
+                <select
 
-                </option>
+                    value={sortBy}
 
-                <option value="lowest">
+                    onChange={(e) =>
 
-                    Lowest Amount
+                        setSortBy(e.target.value)
 
-                </option>
+                    }
 
-            </select>
+                >
 
-            <br /><br />
+                    <option value="latest">
+
+                        Latest
+
+                    </option>
+
+                    <option value="oldest">
+
+                        Oldest
+
+                    </option>
+
+                    <option value="highest">
+
+                        Highest Amount
+
+                    </option>
+
+                    <option value="lowest">
+
+                        Lowest Amount
+
+                    </option>
+
+                </select>
+
+            </div>
+                        <hr />
 
             {
 
-                filteredExpenses.length === 0 ?
+                recentTransactions.length === 0 ?
 
                 (
 
@@ -329,7 +619,7 @@ function Dashboard() {
 
                 (
 
-                    filteredExpenses.map((expense) => (
+                    recentTransactions.map((expense) => (
 
                         <ExpenseCard
 
@@ -344,6 +634,58 @@ function Dashboard() {
                         />
 
                     ))
+
+                )
+
+            }
+
+            <hr />
+
+            <h2>
+
+                Category Summary
+
+            </h2>
+
+            {
+
+                Object.keys(categorySummary).length === 0 ?
+
+                (
+
+                    <p>
+
+                        No expense categories available.
+
+                    </p>
+
+                )
+
+                :
+
+                (
+
+                    Object.entries(categorySummary).map(
+
+                        ([category, amount]) => (
+
+                            <p key={category}>
+
+                                <strong>
+
+                                    {category}
+
+                                </strong>
+
+                                {" : "}
+
+                                ₹{amount}
+
+                            </p>
+
+                        )
+
+                    )
 
                 )
 

@@ -1,3 +1,5 @@
+import Button from "./Button";
+
 function ExpenseCard({
 
     expense,
@@ -13,41 +15,72 @@ function ExpenseCard({
         <div
             style={{
                 border: "1px solid #ccc",
-                padding: "15px",
+                borderRadius: "10px",
+                padding: "20px",
                 marginBottom: "15px",
-                borderRadius: "8px"
+                backgroundColor: "#fff"
             }}
         >
 
             <h3>{expense.title}</h3>
 
-            <p>₹ {expense.amount}</p>
+            <p>
 
-            <p>{expense.category}</p>
+                <strong>Amount:</strong> ₹{expense.amount}
 
-            <p>{expense.description}</p>
+            </p>
 
-            <small>
+            <p>
+
+                <strong>Category:</strong> {expense.category}
+
+            </p>
+
+            <p>
+
+                <strong>Description:</strong>{" "}
+
+                {expense.description || "No Description"}
+
+            </p>
+
+            <p>
+
+                <strong>Date:</strong>{" "}
 
                 {new Date(expense.date).toLocaleDateString()}
 
-            </small>
+            </p>
 
-            <br /><br />
-
-            <button
-                onClick={() => onEdit(expense)}
+            <div
+                style={{
+                    display: "flex",
+                    gap: "10px",
+                    marginTop: "15px"
+                }}
             >
-                Edit
-            </button>
 
-            {" "}
+                <Button
 
-            <button
-                onClick={() => onDelete(expense._id)}
-            >
-                Delete
-            </button>
+                    text="Edit"
+
+                    type="button"
+
+                    onClick={() => onEdit(expense)}
+
+                />
+
+                <Button
+
+                    text="Delete"
+
+                    type="button"
+
+                    onClick={() => onDelete(expense._id)}
+
+                />
+
+            </div>
 
         </div>
 
