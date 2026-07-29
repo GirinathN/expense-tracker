@@ -6,6 +6,8 @@ import API from "../api/axios";
 import DashboardCard from "../components/DashboardCard";
 import ExpenseCard from "../components/ExpenseCard";
 import ExpenseForm from "../components/ExpenseForm";
+import ExpensePieChart from "../charts/ExpensePieChart";
+import MonthlyBarChart from "../charts/MonthlyBarChart";
 
 function Dashboard() {
 
@@ -413,7 +415,19 @@ function Dashboard() {
 
         return (
 
-        <div style={{ padding: "20px" }}>
+        <div
+
+    style={{
+
+        padding:"30px",
+
+        maxWidth:"1400px",
+
+        margin:"0 auto"
+
+    }}
+
+>
 
             <h1>Dashboard</h1>
 
@@ -641,56 +655,115 @@ function Dashboard() {
 
             <hr />
 
-            <h2>
+            <hr />
 
-                Category Summary
+<h2>
 
-            </h2>
+    Analytics
 
-            {
+</h2>
 
-                Object.keys(categorySummary).length === 0 ?
+<div
 
-                (
+    style={{
 
-                    <p>
+        display: "grid",
 
-                        No expense categories available.
+        gridTemplateColumns: "repeat(auto-fit,minmax(400px,1fr))",
 
-                    </p>
+        gap: "20px",
 
-                )
+        marginTop: "20px"
 
-                :
+    }}
 
-                (
+>
 
-                    Object.entries(categorySummary).map(
+    <div>
 
-                        ([category, amount]) => (
+        <h3>
 
-                            <p key={category}>
+            Expense Distribution
 
-                                <strong>
+        </h3>
 
-                                    {category}
+        <ExpensePieChart
 
-                                </strong>
+            categorySummary={categorySummary}
 
-                                {" : "}
+        />
 
-                                ₹{amount}
+    </div>
 
-                            </p>
+    <div>
 
-                        )
+        <h3>
 
-                    )
+            Monthly Expense Trend
 
-                )
+        </h3>
 
-            }
+        <MonthlyBarChart
 
+            expenses={expenses}
+
+        />
+
+    </div>
+
+</div>
+
+<hr />
+
+<h2>
+
+    Category Summary
+
+</h2>
+
+{
+
+    Object.keys(categorySummary).length === 0 ?
+
+    (
+
+        <p>
+
+            No expense categories available.
+
+        </p>
+
+    )
+
+    :
+
+    (
+
+        Object.entries(categorySummary).map(
+
+            ([category, amount]) => (
+
+                <p key={category}>
+
+                    <strong>
+
+                        {category}
+
+                    </strong>
+
+                    {" : "}
+
+                    ₹{amount}
+
+                </p>
+
+            )
+
+        )
+
+    )
+
+}
         </div>
 
     );
