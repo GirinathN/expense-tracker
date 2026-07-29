@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+import API from "../api/axios";
 
 import InputField from "./InputField";
 import Button from "./Button";
 
-function ExpenseForm({ onExpenseAdded }) {
+function ExpenseForm({ expense, onExpenseAdded }) {
 
     const [title, setTitle] = useState("");
 
@@ -19,8 +21,21 @@ function ExpenseForm({ onExpenseAdded }) {
 
     const [error, setError] = useState("");
 
-    const categories = [
+    useEffect(() => {
 
+        if (expense) {
+
+            setTitle(expense.title);
+            setAmount(expense.amount);
+            setCategory(expense.category);
+            setDescription(expense.description);
+            setDate(expense.date.split("T")[0]);
+
+        }
+
+    }, [expense]);
+
+    const categories = [
         "Food",
         "Transport",
         "Shopping",
@@ -30,7 +45,6 @@ function ExpenseForm({ onExpenseAdded }) {
         "Education",
         "Salary",
         "Other"
-
     ];
 
     const handleSubmit = async (e) => {
@@ -51,35 +65,39 @@ function ExpenseForm({ onExpenseAdded }) {
 
             setLoading(true);
 
-            await onExpenseAdded({
+            if (expense) {
 
-                title,
+                await API.put(`/expenses/${expense._id}`, {
+                    title,
+                    amount: Number(amount),
+                    category,
+                    description,
+                    date
+                });
 
-                amount: Number(amount),
+            } else {
 
-                category,
+                await onExpenseAdded({
+                    title,
+                    amount: Number(amount),
+                    category,
+                    description,
+                    date
+                });
 
-                description,
-
-                date
-
-            });
+            }
 
             setTitle("");
-
             setAmount("");
-
             setCategory("Food");
-
             setDescription("");
-
             setDate("");
 
         }
 
-        catch (error) {
+        catch {
 
-            setError("Unable to add expense.");
+            setError("Unable to save expense.");
 
         }
 
@@ -95,36 +113,28 @@ function ExpenseForm({ onExpenseAdded }) {
 
         <form onSubmit={handleSubmit}>
 
-            <h2>Add Expense</h2>
+            <h2>
+
+                {expense ? "Edit Expense" : "Add Expense"}
+
+            </h2>
 
             {error && <p>{error}</p>}
 
             <InputField
-
                 label="Title"
-
                 type="text"
-
                 placeholder="Expense Title"
-
                 value={title}
-
                 onChange={(e) => setTitle(e.target.value)}
-
             />
 
             <InputField
-
                 label="Amount"
-
                 type="number"
-
                 placeholder="Expense Amount"
-
                 value={amount}
-
                 onChange={(e) => setAmount(e.target.value)}
-
             />
 
             <div>
@@ -134,11 +144,8 @@ function ExpenseForm({ onExpenseAdded }) {
                 <br />
 
                 <select
-
                     value={category}
-
                     onChange={(e) => setCategory(e.target.value)}
-
                 >
 
                     {
@@ -146,15 +153,10 @@ function ExpenseForm({ onExpenseAdded }) {
                         categories.map((item) => (
 
                             <option
-
                                 key={item}
-
                                 value={item}
-
                             >
-
                                 {item}
-
                             </option>
 
                         ))
@@ -166,15 +168,10 @@ function ExpenseForm({ onExpenseAdded }) {
             </div>
 
             <InputField
-
                 label="Date"
-
                 type="date"
-
                 value={date}
-
                 onChange={(e) => setDate(e.target.value)}
-
             />
 
             <div>
@@ -184,19 +181,10 @@ function ExpenseForm({ onExpenseAdded }) {
                 <br />
 
                 <textarea
-
                     rows="4"
-
-                    placeholder="Expense Description"
-
                     value={description}
-
-                    onChange={(e) =>
-
-                        setDescription(e.target.value)
-
-                    }
-
+                    placeholder="Expense Description"
+                    onChange={(e) => setDescription(e.target.value)}
                 />
 
             </div>
@@ -204,13 +192,9 @@ function ExpenseForm({ onExpenseAdded }) {
             <br />
 
             <Button
-
-                text="Add Expense"
-
+                text={expense ? "Update Expense" : "Add Expense"}
                 loading={loading}
-
                 type="submit"
-
             />
 
         </form>

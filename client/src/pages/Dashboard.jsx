@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import API from "../api/axios";
@@ -14,7 +14,15 @@ function Dashboard() {
 
     const [expenses, setExpenses] = useState([]);
 
+    const [editingExpense, setEditingExpense] = useState(null);
+
     const [loading, setLoading] = useState(true);
+
+    const [search, setSearch] = useState("");
+
+    const [categoryFilter, setCategoryFilter] = useState("All");
+
+    const [sortBy, setSortBy] = useState("latest");
 
     useEffect(() => {
 
@@ -36,7 +44,7 @@ function Dashboard() {
 
         }
 
-        catch (error) {
+        catch {
 
             localStorage.removeItem("token");
 
@@ -56,27 +64,114 @@ function Dashboard() {
 
     const addExpense = async (expenseData) => {
 
-        const res = await API.post(
+        const res = await API.post("/expenses", expenseData);
 
-            "/expenses",
+        setExpenses([res.data.expense, ...expenses]);
 
-            expenseData
+    };
 
-        );
+    const deleteExpense = async (id) => {
+
+        const confirmDelete = window.confirm("Delete this expense?");
+
+        if (!confirmDelete) return;
+
+        await API.delete(`/expenses/${id}`);
 
         setExpenses(
 
-            [
-
-                res.data.expense,
-
-                ...expenses
-
-            ]
+            expenses.filter((expense) => expense._id !== id)
 
         );
 
     };
+
+    const filteredExpenses = useMemo(() => {
+
+        let data = [...expenses];
+
+        // Search
+        data = data.filter((expense) =>
+
+            expense.title
+
+                .toLowerCase()
+
+                .includes(search.toLowerCase())
+
+        );
+
+        // Category Filter
+        if (categoryFilter !== "All") {
+
+            data = data.filter(
+
+                (expense) => expense.category === categoryFilter
+
+            );
+
+        }
+
+        // Sorting
+        switch (sortBy) {
+
+            case "latest":
+
+                data.sort(
+
+                    (a, b) =>
+
+                        new Date(b.date) -
+
+                        new Date(a.date)
+
+                );
+
+                break;
+
+            case "oldest":
+
+                data.sort(
+
+                    (a, b) =>
+
+                        new Date(a.date) -
+
+                        new Date(b.date)
+
+                );
+
+                break;
+
+            case "highest":
+
+                data.sort(
+
+                    (a, b) => b.amount - a.amount
+
+                );
+
+                break;
+
+            case "lowest":
+
+                data.sort(
+
+                    (a, b) => a.amount - b.amount
+
+                );
+
+                break;
+
+            default:
+
+                break;
+
+        }
+
+        return data;
+
+    }, [expenses, search, categoryFilter, sortBy]);
 
     const handleLogout = () => {
 
@@ -102,17 +197,11 @@ function Dashboard() {
 
             <h3>
 
-                Welcome,
-
-                {user?.name}
+                Welcome, {user?.name}
 
             </h3>
 
-            <button
-
-                onClick={handleLogout}
-
-            >
+            <button onClick={handleLogout}>
 
                 Logout
 
@@ -122,6 +211,8 @@ function Dashboard() {
 
             <ExpenseForm
 
+                expense={editingExpense}
+
                 onExpenseAdded={addExpense}
 
             />
@@ -130,13 +221,107 @@ function Dashboard() {
 
             <h2>Your Expenses</h2>
 
+            <input
+
+                type="text"
+
+                placeholder="Search Expenses"
+
+                value={search}
+
+                onChange={(e) =>
+
+                    setSearch(e.target.value)
+
+                }
+
+            />
+
+            <br /><br />
+
+            <select
+
+                value={categoryFilter}
+
+                onChange={(e) =>
+
+                    setCategoryFilter(e.target.value)
+
+                }
+
+            >
+
+                <option>All</option>
+
+                <option>Food</option>
+
+                <option>Transport</option>
+
+                <option>Shopping</option>
+
+                <option>Bills</option>
+
+                <option>Entertainment</option>
+
+                <option>Healthcare</option>
+
+                <option>Education</option>
+
+                <option>Salary</option>
+
+                <option>Other</option>
+
+            </select>
+
+            <br /><br />
+
+            <select
+
+                value={sortBy}
+
+                onChange={(e) =>
+
+                    setSortBy(e.target.value)
+
+                }
+
+            >
+
+                <option value="latest">
+
+                    Latest
+
+                </option>
+
+                <option value="oldest">
+
+                    Oldest
+
+                </option>
+
+                <option value="highest">
+
+                    Highest Amount
+
+                </option>
+
+                <option value="lowest">
+
+                    Lowest Amount
+
+                </option>
+
+            </select>
+
+            <br /><br />
+
             {
 
-                expenses.length === 0 ?
+                filteredExpenses.length === 0 ?
 
                 (
 
-                    <p>No expenses yet.</p>
+                    <p>No expenses found.</p>
 
                 )
 
@@ -144,13 +329,17 @@ function Dashboard() {
 
                 (
 
-                    expenses.map((expense) => (
+                    filteredExpenses.map((expense) => (
 
                         <ExpenseCard
 
                             key={expense._id}
 
                             expense={expense}
+
+                            onEdit={setEditingExpense}
+
+                            onDelete={deleteExpense}
 
                         />
 

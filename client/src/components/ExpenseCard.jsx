@@ -1,4 +1,12 @@
-function ExpenseCard({ expense }) {
+function ExpenseCard({
+
+    expense,
+
+    onEdit,
+
+    onDelete
+
+}) {
 
     return (
 
@@ -24,6 +32,22 @@ function ExpenseCard({ expense }) {
                 {new Date(expense.date).toLocaleDateString()}
 
             </small>
+
+            <br /><br />
+
+            <button
+                onClick={() => onEdit(expense)}
+            >
+                Edit
+            </button>
+
+            {" "}
+
+            <button
+                onClick={() => onDelete(expense._id)}
+            >
+                Delete
+            </button>
 
         </div>
 
