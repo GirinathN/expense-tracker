@@ -3,19 +3,34 @@ function DashboardCard({ title, value }) {
     return (
 
         <div
+
             style={{
-                border: "1px solid #ddd",
-                borderRadius: "10px",
+
+                background: "#ffffff",
+
+                borderRadius: "16px",
+
                 padding: "20px",
-                minWidth: "180px",
-                textAlign: "center",
-                backgroundColor: "#f8f8f8"
+
+                boxShadow: "0 8px 20px rgba(0,0,0,0.08)",
+
+                textAlign: "center"
+
             }}
+
         >
 
-            <h3>{title}</h3>
+            <h3>
 
-            <h2>{value}</h2>
+                {title}
+
+            </h3>
+
+            <h1>
+
+                {value}
+
+            </h1>
 
         </div>
 

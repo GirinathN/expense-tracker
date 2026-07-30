@@ -431,15 +431,42 @@ function Dashboard() {
 
 >
 
-            <h1>Dashboard</h1>
+            <h1
 
-            <h3>
+            style={{
+        
+                marginBottom:"10px"
+
+            }}
+
+            >
+
+                Expense Tracker Dashboard
+
+            </h1>
+
+            <h3
+            style={{
+                color:"#666" }}
+            >
 
                 Welcome, {user?.name} 
 
             </h3>
 
-            <button onClick={handleLogout}>
+            <button 
+            
+            style={{
+
+            marginBottom:"20px",
+
+            padding:"10px 20px",
+
+            cursor:"pointer"
+
+            }}
+            
+            onClick={handleLogout}>
 
                 Logout
             </button>
@@ -454,7 +481,7 @@ function Dashboard() {
 
                     display: "grid",
 
-                    gridTemplateColumns: "repeat(4,1fr)",
+                    gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))",
 
                     gap: "20px",
 
@@ -515,22 +542,24 @@ function Dashboard() {
             <h2>Recent Transactions</h2>
 
             <div
-
                 style={{
-
                     display: "flex",
-
                     gap: "15px",
-
                     flexWrap: "wrap",
-
-                    marginBottom: "20px"
-
+                    marginBottom: "20px",
+                    alignItems:"center"
                 }}
-
             >
 
                 <input
+
+                     style={{
+
+                    minWidth:"220px",
+
+                    padding:"10px"
+
+                        }}
 
                     type="text"
 
@@ -547,6 +576,12 @@ function Dashboard() {
                 />
 
                 <select
+
+                    style={{
+
+                    padding:"10px"
+
+                    }}
 
                     value={categoryFilter}
 
@@ -581,6 +616,12 @@ function Dashboard() {
                 </select>
 
                 <select
+
+                    style={{
+
+                    padding:"10px"
+
+                    }}
 
                     value={sortBy}
 
@@ -627,7 +668,22 @@ function Dashboard() {
 
                 (
 
-                    <p>No expenses found.</p>
+                <div
+                    style={{
+
+                    textAlign:"center",
+                    padding:"40px",
+                    color:"#666"
+                    }}
+                >
+                <h3>
+                    No Expenses Yet 
+                </h3>
+
+                <p>
+                    Start by adding your first expense.
+                </p>
+                </div>
 
                 )
 
@@ -729,11 +785,21 @@ function Dashboard() {
 
     (
 
-        <p>
+    <div style={{
+        textAlign:"center",
+        padding:"30px",
+        color:"#666"
+    }} >
 
-            No expense categories available.
+    <h3>
+        No Analytics Available 
+    </h3>
 
-        </p>
+    <p>
+        Add some expenses to generate analytics.
+    </p>
+
+</div>
 
     )
 

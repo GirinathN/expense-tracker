@@ -13,16 +13,30 @@ function ExpenseCard({
     return (
 
         <div
+
             style={{
-                border: "1px solid #ccc",
-                borderRadius: "10px",
-                padding: "20px",
-                marginBottom: "15px",
-                backgroundColor: "#fff"
+
+                border: "1px solid #ddd",
+
+                borderRadius: "16px",
+
+                padding: "24px",
+
+                marginBottom: "20px",
+
+                background: "#ffffff",
+
+                boxShadow: "0 8px 20px rgba(0,0,0,0.08)"
+
             }}
+
         >
 
-            <h3>{expense.title}</h3>
+            <h3>
+
+                {expense.title}
+
+            </h3>
 
             <p>
 
@@ -53,11 +67,17 @@ function ExpenseCard({
             </p>
 
             <div
+
                 style={{
+
                     display: "flex",
+
                     gap: "10px",
+
                     marginTop: "15px"
+
                 }}
+
             >
 
                 <Button
